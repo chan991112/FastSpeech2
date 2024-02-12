@@ -14,6 +14,7 @@ class FastSpeech2(nn.Module):
     """ FastSpeech2 """
 
     def __init__(self, preprocess_config, model_config):
+        #구조는 논문과 동일하게 encoder, variance adaptor, decoder
         super(FastSpeech2, self).__init__()
         self.model_config = model_config
 
@@ -24,7 +25,9 @@ class FastSpeech2(nn.Module):
             model_config["transformer"]["decoder_hidden"],
             preprocess_config["preprocessing"]["mel"]["n_mel_channels"],
         )
+        #decoder 통과해서 나온 애들을 mel_channel에 맞게 선형 변환해서 mel_spectogram 뽑아냄
         self.postnet = PostNet()
+        #postnet은 transformer 파일에서 불러옴, mel 보정해주는 역할
 
         self.speaker_emb = None
         if model_config["multi_speaker"]:
@@ -39,6 +42,7 @@ class FastSpeech2(nn.Module):
                 n_speaker,
                 model_config["transformer"]["encoder_hidden"],
             )
+        #config file에서 multi_speaker=none
 
     def forward(
         self,
@@ -62,9 +66,9 @@ class FastSpeech2(nn.Module):
             if mel_lens is not None
             else None
         )
-
+        #src_mask와 mel_mask 선언
         output = self.encoder(texts, src_masks)
-
+        #encoder 통과한 output
         if self.speaker_emb is not None:
             output = output + self.speaker_emb(speakers).unsqueeze(1).expand(
                 -1, max_src_len, -1
@@ -90,12 +94,13 @@ class FastSpeech2(nn.Module):
             e_control,
             d_control,
         )
-
+        #각 변수들을 variance_adaptor 통과 시킨 값으로 update
         output, mel_masks = self.decoder(output, mel_masks)
+        #output, mel_masks를 decoder 통과시킨 값으로 update
         output = self.mel_linear(output)
-
+        #output을 mel_linear 통과시킨 값으로 update
         postnet_output = self.postnet(output) + output
-
+        #postnet_output은 postnet 통과 시킨 값으로 따로 update 근데 기존 output은 왜 더하지..? 이게 residual connection인가?
         return (
             output,
             postnet_output,
