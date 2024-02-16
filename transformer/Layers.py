@@ -26,7 +26,7 @@ class FFTBlock(torch.nn.Module):
         )
         #enc_input에 대해서 self_attention 구함, 그리고 이걸 enc_output, enc_slf_attn에 저장
         enc_output = enc_output.masked_fill(mask.unsqueeze(-1), 0)
-        #mask 처리 해줌, 계산의 효율..?
+        #mask 처리 해줌, 계산의 효율 증가
         enc_output = self.pos_ffn(enc_output)
         #output을 positionwise ffn 한번 돌림
         enc_output = enc_output.masked_fill(mask.unsqueeze(-1), 0)
@@ -75,7 +75,7 @@ class PostNet(nn.Module):
     """
     PostNet: Five 1-d convolution with 512 channels and kernel size 5
     """
-    #mel spectogram에서 생성된 음성 파형의 세부 정보를 보완하는 역할을 한다..?
+    #mel spectogram에서 생성된 음성 파형의 세부 정보를 보완하는 역할을 한다
 
     def __init__(
         self,
