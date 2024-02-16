@@ -28,7 +28,7 @@ class VarianceAdaptor(nn.Module):
         self.energy_feature_level = preprocess_config["preprocessing"]["energy"]["feature"]
         assert self.pitch_feature_level in ["phoneme_level", "frame_level"]
         assert self.energy_feature_level in ["phoneme_level", "frame_level"]
-        #yaml file 보니까 그냥 phoneme_level으로 정의됐던데..? 그냥 다 true 아닌가
+        #yaml file 보니까 default는 phoneme_level으로 정의
         pitch_quantization = model_config["variance_embedding"]["pitch_quantization"]
         #config file에서 "linear"로 정의
         energy_quantization = model_config["variance_embedding"]["energy_quantization"]
@@ -153,7 +153,7 @@ class VarianceAdaptor(nn.Module):
                 x, pitch_target, src_mask, p_control
             )
             x = x + pitch_embedding
-            #입력 시그널 x에 pitch_embedding한 값을 더함. 왜..?
+            #입력 시그널 x에 pitch_embedding한 값을 더함. 
 
         if self.energy_feature_level == "phoneme_level":
             energy_prediction, energy_embedding = self.get_energy_embedding(
@@ -220,7 +220,7 @@ class LengthRegulator(nn.Module):
             expand_size = predicted[i].item()
             #expand_size를 predicted[i]로 즉 이 phoneme이 얼마나 지속될 것인지
             out.append(vec.expand(max(int(expand_size), 0), -1))
-            #out에 vec에 expand_size만큼 차원을 늘려서. 소리는 묵음이라도 최소한 0번은 지속되므로(음수만큼 지속될 수는 없음) 뒤에 -1은 뭐지..?
+            #out에 vec에 expand_size만큼 차원을 늘려서. 소리는 묵음이라도 최소한 0번은 지속되므로(음수만큼 지속될 수는 없음)
         out = torch.cat(out, 0)
         #out을 tensor로 만든다.
         return out
