@@ -9,7 +9,7 @@ class FastSpeech2Loss(nn.Module):
         super(FastSpeech2Loss, self).__init__()
         self.pitch_feature_level = preprocess_config["preprocessing"]["pitch"]["feature"]
         self.energy_feature_level = preprocess_config["preprocessing"]["energy"]["feature"]
-        #pitch와 energy를 feature로 각각의 loss를 찾아냄, duration은 왜 따로 처리 안 해주는거지..?
+        #pitch와 energy를 feature로 각각의 loss를 찾아냄
         self.mse_loss = nn.MSELoss()
         #논문에서 언급했듯이 Mean Squared Error 사용 pitch, duration, energy에 사용
         self.mae_loss = nn.L1Loss()
@@ -39,8 +39,8 @@ class FastSpeech2Loss(nn.Module):
         ) = predictions
         #predictions로 입력되는 요소들, prediction값들과 거기에 쓰인 mask들
 
-        src_masks = ~src_masks #마스크 반전..?
-        mel_masks = ~mel_masks #여기도 마스크 반전..?
+        src_masks = ~src_masks #마스크 반전
+        mel_masks = ~mel_masks #여기도 마스크 반전
         log_duration_targets = torch.log(duration_targets.float() + 1)
         #prediction에 log_duration_predictions로 들어오니까 input duration에 log처리
         mel_targets = mel_targets[:, : mel_masks.shape[1], :]
@@ -52,7 +52,7 @@ class FastSpeech2Loss(nn.Module):
         pitch_targets.requires_grad = False
         energy_targets.requires_grad = False
         mel_targets.requires_grad = False
-        #target 값들이니까 grad를 따로 구하지는 않음. target 값들은 목표값으로 변하지 않으니까. 근데 왜 따로 설정해둔거지..? 
+        #target 값들이니까 grad를 따로 구하지는 않음. target 값들은 목표값으로 변하지 않으니까. 
 
         if self.pitch_feature_level == "phoneme_level":
             pitch_predictions = pitch_predictions.masked_select(src_masks)
