@@ -135,9 +135,9 @@ def main(args, configs):
                         f.write(message1 + message2 + "\n")
                         #이 message들을 log_path dir에 담음
                     outer_bar.write(message1 + message2)
-                    #프롬프트 창에 띄움..?
+                    #프롬프트 창에 띄움
                     log(train_logger, step, losses=losses)
-                    #위에 log 기록한거 아닌가, 왜 여기서 또..?
+                    
 
                 if step % synth_step == 0:
                     #synth_step(1000)마다 합성
