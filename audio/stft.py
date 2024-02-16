@@ -10,33 +10,41 @@ from audio.audio_processing import (
     dynamic_range_decompression,
     window_sumsquare,
 )
-
+#audio_processing 파일에서 정의한 함수들 불러옴
 
 class STFT(torch.nn.Module):
+    #short term furie transtorm Class
     """adapted from Prem Seetharaman's https://github.com/pseeth/pytorch-stft"""
 
     def __init__(self, filter_length, hop_length, win_length, window="hann"):
         super(STFT, self).__init__()
         self.filter_length = filter_length
+        #filter는 특정 주파수를 강조하는 것으로 length는 어떤 주파수를 강조할지..?
         self.hop_length = hop_length
         self.win_length = win_length
         self.window = window
         self.forward_transform = None
-        scale = self.filter_length / self.hop_length
+        scale = self.filter_length / self.hop_length 
+        #보통 1/4로 맞춤
         fourier_basis = np.fft.fft(np.eye(self.filter_length))
-
+        #fft는 fast furie transform으로 length만큼의 단위 행렬을 만들고 FFT를 통해 계산된 Fourier Transform의 기저 함수들을 담은 행렬이 된다.
+        #이러한 기저 함수들은 주파수 도메인에서 시간 도메인으로 변환될 때 사용되며, 푸리에 변환에 관련된 연산에서 활용될 수 있다.
         cutoff = int((self.filter_length / 2 + 1))
+        #필터의 길이를 반으로 나눔 fft의 대칭성을 이용해서 절반만 사용, Nyquist 정리
         fourier_basis = np.vstack(
             [np.real(fourier_basis[:cutoff, :]), np.imag(fourier_basis[:cutoff, :])]
         )
-
+        #furie transform을 하면 복소수로 나타나기 때문에 실수부와 허수부를 따로 나눔
         forward_basis = torch.FloatTensor(fourier_basis[:, None, :])
+        #정방향 basis
         inverse_basis = torch.FloatTensor(
             np.linalg.pinv(scale * fourier_basis).T[:, None, :]
         )
+        #역방향 basis
 
         if window is not None:
             assert filter_length >= win_length
+            #이것도 Nyquist 정리 처럼 window로 길이를 잘라놨는데 filter가 이 길이보다 더 짧아버리면 제대로 그 주파수를 읽지 못하니까
             # get window and zero center pad it to filter_length
             fft_window = get_window(window, win_length, fftbins=True)
             fft_window = pad_center(fft_window, filter_length)
@@ -48,7 +56,9 @@ class STFT(torch.nn.Module):
 
         self.register_buffer("forward_basis", forward_basis.float())
         self.register_buffer("inverse_basis", inverse_basis.float())
+        #위에 정의한 정방향,역방향 기저에 fft_window값을 넣어줌
 
+        #이 아래부터는 퓨리에 변환을 하는 부분인데 이해하기가 쉽지 않음.
     def transform(self, input_data):
         num_batches = input_data.size(0)
         num_samples = input_data.size(1)
