@@ -64,7 +64,7 @@ def preprocess_english(text, preprocess_config):
             phones, preprocess_config["preprocessing"]["text"]["text_cleaners"]
         )
     )
-    #이를 음성합성을 위해 시퀀스로 변환, 그냥 phones랑 text 반환하면 되는거 아닌가..?
+    #이를 음성합성을 위해 시퀀스로 변환
 
     return np.array(sequence)
 
@@ -216,7 +216,7 @@ if __name__ == "__main__":
     vocoder = get_vocoder(model_config, device)
 
 
-    #batch랑 single이 뭐지..?
+    
     # Preprocess texts
     if args.mode == "batch":
         # Get dataset
