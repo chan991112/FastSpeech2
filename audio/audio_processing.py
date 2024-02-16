@@ -10,7 +10,7 @@ def window_sumsquare(
     #input signal이 너무 길어서 한번에 처리하지 않고 쪼개주는 함수, Relu function과 비슷한 함수로 일부구간에서는 특정 값을 갖고 나머지에서는 0을 갖는 형태로 얘를 원래 신호에 곱하면 특정구간 외에는 모두 0이 된다.
     #w(n) : Window function 일반적으로 Hann window 사용한다. 그냥 0,1로만 박으면(rectangular window) 정확하지 않고 main lobe와 side lobe가 생기면서 오차가 심해짐, 잘라서 쓰는거다 보니 window를 사용하면 side lobe가 생기기는 함     
     n_frames,
-    #몇 프레임으로 나누는가(?) n_frames = 1 + int((len(y) - frame_length) / hop_length)
+    #몇 프레임으로 나누는가 n_frames = 1 + int((len(y) - frame_length) / hop_length)
     hop_length,
     #window가 겹치는 사이즈, 일반적으로는 1/4 정도를 겹치게 한다. frame의 양 끝단에서 신호의 정보가 자연스럽게 연결되게 하기 위해 겹치게 잡음, 각 frame의 시작점에서 hop_length만큼 띄어서 다음 frame의 시작점으로 잡음
     win_length,
@@ -83,7 +83,7 @@ def window_sumsquare(
     # 2 dimenstion x에 x[sample:min(~)] 부분에 win_sq한 값을 넣어줌, x는 0으로 초기화되어 있음
 
 def griffin_lim(magnitudes, stft_fn, n_iters=30):
-    #melspectogram 으로 계산된 magnitude에서 실제 audio를 만들어내는 알고리즘, 근데 fastspeech2에서는 neural vocoder 쓰지 않나..?
+    #melspectogram 으로 계산된 magnitude에서 실제 audio를 만들어내는 알고리즘
     """
     PARAMS
     ------
